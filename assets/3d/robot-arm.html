@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6-DOF Robotic Arm - Reachability Validation</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#1a1a1e;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{display:block}
+#title{position:fixed;top:20px;left:50%;transform:translateX(-50%);color:#b8c7d9;font-size:14px;font-weight:300;letter-spacing:2px;text-transform:uppercase;text-align:center;opacity:.7;z-index:20;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+#title strong{display:block;font-size:20px;font-weight:600;letter-spacing:3px;color:#dce8f5;margin-bottom:2px}
+#info-panel{position:fixed;bottom:30px;left:30px;z-index:20;color:#b0c4d8;font-size:11px;font-family:Consolas,'Courier New',monospace;background:rgba(10,14,24,.75);backdrop-filter:blur(8px);border:1px solid rgba(100,160,220,.2);border-radius:8px;padding:10px 14px;min-width:160px;line-height:1.4;cursor:move;user-select:none;touch-action:none;resize:both;overflow:hidden}
+#info-panel .label{color:#6a8aaa;font-size:10px;text-transform:uppercase;letter-spacing:1px;pointer-events:none}
+#info-panel .val{color:#d0e4f8;pointer-events:none}
+#info-panel .row{display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+#legend{position:fixed;bottom:30px;right:30px;z-index:20;color:#b0c4d8;font-size:11px;font-family:Consolas,'Courier New',monospace;background:rgba(10,14,24,.75);backdrop-filter:blur(8px);border:1px solid rgba(100,160,220,.2);border-radius:8px;padding:10px 14px;line-height:1.6;cursor:move;user-select:none;touch-action:none;resize:both;overflow:hidden}
+#legend .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+#legend .swatch{display:inline-block;width:16px;height:10px;border-radius:2px;margin-right:8px;vertical-align:middle}
+#status-badge{position:fixed;top:70px;right:30px;z-index:20;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;font-family:'Segoe UI',sans-serif;background:rgba(10,14,24,.75);backdrop-filter:blur(8px);border:1px solid;transition:all .3s}
+#status-badge.safe{border-color:rgba(91,192,235,.4);color:#5bc0eb}
+#status-badge.boundary{border-color:rgba(247,160,114,.5);color:#f7a072;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+#time-display{position:fixed;top:70px;left:30px;z-index:20;color:rgba(150,180,210,.5);font-size:12px;font-family:Consolas,'Courier New',monospace;background:rgba(10,14,24,.6);backdrop-filter:blur(4px);border-radius:6px;padding:6px 12px}
+</style>
+</head>
+<body>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import*as THREE from"three";import{OrbitControls}from"three/addons/controls/OrbitControls.js";
+const L=[0.45,0.75,0.55,0.18,0.14,0.10];const R=[0.17,0.13,0.10,0.07,0.06,0.04];
+const BH=0.18,BR=0.26;const REACH=L.reduce((a,b)=>a+b,0);
+const DUR=28,TN=500,BD=0.07;
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x10141a);sc.fog=new THREE.Fog(0x10141a,14,24);
+const ca=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,0.1,50);ca.position.set(4.2,2.4,4.8);
+const re=new THREE.WebGLRenderer({antialias:true});re.setSize(innerWidth,innerHeight);
+re.setPixelRatio(1);re.shadowMap.enabled=true;
+re.shadowMap.type=THREE.PCFSoftShadowMap;re.toneMapping=THREE.ACESFilmicToneMapping;
+re.toneMappingExposure=1.2;document.body.prepend(re.domElement);
+const co=new OrbitControls(ca,re.domElement);
+co.target.set(0,1.2,0);co.enableDamping=true;co.dampingFactor=0.08;
+co.minDistance=1.8;co.maxDistance=14;co.maxPolarAngle=Math.PI*0.85;co.update();
+const fm=new THREE.MeshStandardMaterial({color:0x282d35,roughness:0.9,metalness:0.02});
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(14,14),fm);
+fl.rotation.x=-Math.PI/2;fl.position.y=-0.01;fl.receiveShadow=true;sc.add(fl);
+const gr=new THREE.GridHelper(12,24,0x3a4a5a,0x2a3a4a);
+gr.position.y=0;gr.material.transparent=true;gr.material.opacity=0.3;sc.add(gr);
+const wm=new THREE.MeshStandardMaterial({color:0x1a1f27,roughness:0.95,metalness:0,side:THREE.BackSide});
+const wd=7;for(const[rx,ry,rz,px,py,pz]of[[0,0,0,0,2,-wd],[0,Math.PI,0,0,2,wd],[Math.PI/2,0,0,-wd,2,0],[-Math.PI/2,0,0,wd,2,0]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(wd*2,4),wm);m.rotation.set(rx,ry,rz);m.position.set(px,py,pz);sc.add(m)}
+sc.add(new THREE.AmbientLight(0x404860,0.5));
+sc.add(new THREE.HemisphereLight(0x8a9bb5,0x2a2f38,0.7));
+const kl=new THREE.DirectionalLight(0xffeedd,2.0);
+kl.position.set(4,8,5);kl.castShadow=true;kl.shadow.mapSize.set(1024,1024);
+kl.shadow.camera.near=0.1;kl.shadow.camera.far=20;
+kl.shadow.camera.left=-5;kl.shadow.camera.right=5;
+kl.shadow.camera.top=5;kl.shadow.camera.bottom=-5;kl.shadow.bias=-0.001;sc.add(kl);
+sc.add(new THREE.DirectionalLight(0x8899cc,0.5).position.set(-3,4,-2));
+sc.add(new THREE.DirectionalLight(0xccddff,0.7).position.set(-1,1,-5));
+sc.add(new THREE.DirectionalLight(0xffffff,0.4).position.set(0,6,0));
+const mJ=new THREE.MeshStandardMaterial({color:0x7a8a9a,metalness:0.78,roughness:0.28});
+const mL=new THREE.MeshStandardMaterial({color:0x8a9aaa,metalness:0.72,roughness:0.35});
+const mB=new THREE.MeshStandardMaterial({color:0x445566,metalness:0.85,roughness:0.2});
+const mE=new THREE.MeshStandardMaterial({color:0x5bc0eb,metalness:0.3,roughness:0.1,emissive:0x5bc0eb,emissiveIntensity:0.3});
+const mA=new THREE.MeshStandardMaterial({color:0xcc5500,metalness:0.6,roughness:0.4});
+const rb=new THREE.Group();sc.add(rb);
+const bm=new THREE.Mesh(new THREE.CylinderGeometry(BR*0.7,BR,BH,32),mB);
+bm.position.y=BH/2;bm.castShadow=true;rb.add(bm);
+const bf=new THREE.Mesh(new THREE.CylinderGeometry(BR*0.85,BR*0.75,0.03,32),mA);
+bf.position.y=BH;rb.add(bf);
+function mkLink(len,rad){const g=new THREE.Group();const m=new THREE.Mesh(new THREE.BoxGeometry(rad*0.7,len,rad*0.7),mL);m.position.y=len/2;m.castShadow=true;g.add(m);return g}
+function mkJoint(r){const g=new THREE.Group();const s=new THREE.Mesh(new THREE.SphereGeometry(r,18,16),mJ);s.castShadow=true;g.add(s);const b=new THREE.Mesh(new THREE.TorusGeometry(r*0.8,r*0.12,8,20),mJ);b.rotation.x=Math.PI/2;g.add(b);return g}
+const jt=[];let pr=rb;let cp=new THREE.Vector3(0,BH,0);
+for(let i=0;i<6;i++){const jg=new THREE.Group();jg.position.copy(cp);pr.add(jg);const jm=mkJoint(R[i]);jg.add(jm);const lk=mkLink(L[i],R[i]);jg.add(lk);const ax=i===0?"y":(i<=2?"x":(i%2===0?"z":"x"));const pv=new THREE.Group();pv.position.y=L[i];jg.add(pv);jt.push({group:jg,pivot:pv,axis:ax,angle:0});pr=pv;cp.set(0,0,0)}
+const eg=new THREE.Group();eg.position.y=0.08;pr.add(eg);
+const e1=new THREE.Mesh(new THREE.SphereGeometry(0.06,14,12),mE);
+e1.scale.set(1,0.7,1);eg.add(e1);
+const e2=new THREE.Mesh(new THREE.SphereGeometry(0.09,14,12),new THREE.MeshBasicMaterial({color:0x5bc0eb,transparent:true,opacity:0.12}));
+eg.add(e2);jt.ee=eg;
+const wm2=new THREE.MeshPhysicalMaterial({color:0x3a8fc0,transparent:true,opacity:0.06,roughness:0.2,metalness:0,side:THREE.DoubleSide,depthWrite:false});
+const ws=new THREE.Mesh(new THREE.SphereGeometry(REACH,48,36),wm2);
+ws.position.y=BH;sc.add(ws);
+const we=new THREE.Mesh(new THREE.SphereGeometry(REACH,24,18),new THREE.MeshBasicMaterial({color:0x4a9fd0,transparent:true,opacity:0.1,wireframe:true}));
+we.position.y=BH;sc.add(we);
+const wd2=new THREE.BufferGeometry();const dp=[];
+for(let i=0;i<600;i++){const t=Math.random()*Math.PI*2;const p=Math.acos(2*Math.random()-1);const r=REACH*(0.93+0.07*Math.random());dp.push(r*Math.sin(p)*Math.cos(t),BH+r*Math.cos(p),r*Math.sin(p)*Math.sin(t))}
+wd2.setAttribute("position",new THREE.Float32BufferAttribute(dp,3));
+const dc=new THREE.Points(wd2,new THREE.PointsMaterial({color:0x4a9fd0,size:0.015,transparent:true,opacity:0.3,depthWrite:false}));
+sc.add(dc);
+const tp=[];const tg=new THREE.BufferGeometry();const ta=new Float32Array(TN*3);
+tg.setAttribute("position",new THREE.Float32BufferAttribute(ta,3));tg.setDrawRange(0,0);
+const tl=new THREE.Line(tg,new THREE.LineBasicMaterial({color:0x5bc0eb,transparent:true,opacity:0.45}));
+sc.add(tl);
+const cg=new THREE.BufferGeometry();const cd=[];
+const cp2=new THREE.Points(cg,new THREE.PointsMaterial({color:0xf7a072,size:0.04,transparent:true,opacity:0.65,depthWrite:false}));
+sc.add(cp2);
+let at=0;const ew=new THREE.Vector3();const pw=new THREE.Vector3();const o=new THREE.Vector3(0,BH,0);
+function GA(t){const p=(t/DUR)-Math.floor(t/DUR);const E=(x)=>x*x*(3-2*x);const q=[0,0,0,0,0,0];const s=(a,b,f)=>a+(b-a)*f;
+if(p<0.10){const u=E(p/0.10);q[1]=-0.25*u;q[2]=0.5*u}
+else if(p<0.25){const u=E((p-0.10)/0.15);q[0]=0;q[1]=s(-0.25,-0.85,u);q[2]=s(0.5,1.4,u);q[3]=0.15*u;q[4]=0.3*u}
+else if(p<0.40){const u=E((p-0.25)/0.15);q[0]=s(0,0.55,u);q[1]=s(-0.85,-0.65,u);q[2]=s(1.4,1.6,u);q[3]=s(0.15,0.4,u);q[4]=s(0.3,0.7,u);q[5]=0.2*u}
+else if(p<0.52){const u=E((p-0.40)/0.12);q[0]=s(0.55,1.5,u);q[1]=s(-0.65,-0.35,u);q[2]=s(1.6,1.0,u);q[3]=s(0.4,0.2,u);q[4]=s(0.7,0.4,u);q[5]=s(0.2,0.5,u)}
+else if(p<0.64){const u=E((p-0.52)/0.12);q[0]=s(1.5,-0.3,u);q[1]=s(-0.35,-0.75,u);q[2]=s(1.0,1.3,u);q[3]=s(0.2,0.5,u);q[4]=s(0.4,0.2,u);q[5]=s(0.5,0.1,u)}
+else if(p<0.78){const u=E((p-0.64)/0.14);q[0]=s(-0.3,-0.6,u);q[1]=s(-0.75,-0.95,u);q[2]=s(1.3,1.7,u);q[3]=s(0.5,0.7,u);q[4]=s(0.2,0.5,u);q[5]=s(0.1,0.3,u)}
+else if(p<0.90){const u=E((p-0.78)/0.12);q[0]=s(-0.6,0.2,u);q[1]=s(-0.95,-0.4,u);q[2]=s(1.7,0.8,u);q[3]=s(0.7,0.3,u);q[4]=s(0.5,0.2,u);q[5]=s(0.3,0.1,u)}
+else{const u=E((p-0.90)/0.10);q[0]=s(0.2,0,u);q[1]=s(-0.4,0,u);q[2]=s(0.8,0,u);q[3]=s(0.3,0,u);q[4]=s(0.2,0,u);q[5]=s(0.1,0,u)}
+return q}
+function PH(t){const p=(t/DUR)-Math.floor(t/DUR);if(p<0.10)return"Extending to forward reach envelope";if(p<0.25)return"Maximum horizontal extension - forward";if(p<0.40)return"Sweeping right hemisphere boundary";if(p<0.52)return"Reaching far-right workspace limit";if(p<0.64)return"Transitioning to upper workspace region";if(p<0.78)return"Exploring upper-rear boundary envelope";if(p<0.90)return"Traversing left-side reach limits";return"Returning to home position"}
+function UR(t){const q=GA(t);for(let i=0;i<6;i++){const j=jt[i];j.angle=q[i];const g=j.group;switch(j.axis){case"x":g.rotation.x=q[i];break;case"y":g.rotation.y=q[i];break;case"z":g.rotation.z=q[i];break}}jt.ee.getWorldPosition(ew);return ew}
+let ti=0,tc=0;const cc=[];
+function AC(p){cc.push(p.x,p.y,p.z);if(cc.length>300)cc.splice(0,3);cg.setAttribute("position",new THREE.Float32BufferAttribute(cc,3));cg.setDrawRange(0,cc.length/3)}
+function UT(p){if(tc<TN){tp.push(p.clone());tc++}else{tp[ti]=p.clone();ti=(ti+1)%TN}const a=tl.geometry.attributes.position.array;for(let i=0;i<tc&&i<TN;i++){const idx=(ti+i)%TN;const q=tp[idx];a[i*3]=q.x;a[i*3+1]=q.y;a[i*3+2]=q.z}tl.geometry.attributes.position.needsUpdate=true;tl.geometry.setDrawRange(0,Math.min(tc,TN))}
+// Update HUD (Now sends message to parent instead of local divs)
+function UH(t,ep,db){
+    const data = {
+        time: t.toFixed(1),
+        phase: PH(t),
+        pos: `(${ep.x.toFixed(3)}, ${ep.y.toFixed(3)}, ${ep.z.toFixed(3)})`,
+        dist: db.toFixed(4),
+        isBoundary: db < BD,
+        joints: jt.map((j, i) => ({
+            id: i + 1,
+            angle: (j.angle * 180 / Math.PI).toFixed(1)
+        }))
+    };
+    window.parent.postMessage({ type: 'ROBO_DATA', data }, '*');
+
+    const ab=db<BD;
+    if(ab&&(!UH.lc||t-UH.lc>0.3)){AC(ep);UH.lc=t}
+}
+
+UH.lc=-10;let pt=0;
+function AN(t){requestAnimationFrame(AN);const dt=pt?Math.min((t-pt)/1000,0.05):0.016;pt=t;at+=dt;const ep=UR(at);const d=ep.distanceTo(o);if(pt&&(!pw.length()||ep.distanceTo(pw)>0.002))UT(ep);pw.copy(ep);const db=Math.abs(REACH-d);UH(at,ep,db);e2.material.opacity=0.1+0.08*Math.sin(at*3);e2.scale.setScalar(1+0.15*Math.sin(at*3));co.update();re.render(sc,ca);window.AN_T=at;window.REND=re;window.SC=sc;window.CA=ca;window.CO=co}
+addEventListener("resize",()=>{ca.aspect=innerWidth/innerHeight;ca.updateProjectionMatrix();re.setSize(innerWidth,innerHeight)});
+
+requestAnimationFrame(AN);
+</script>
+</body>
+</html>

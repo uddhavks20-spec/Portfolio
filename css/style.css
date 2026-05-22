@@ -1,0 +1,130 @@
+/* Futuristic Lab Theme Styles */
+
+:root {
+    --neon: #00FFFF;
+    --lab: #000000;
+}
+
+body {
+    background-color: var(--lab);
+    color: white;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--lab);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.3);
+}
+
+/* Purple Glow for Project 2 */
+.purple-glow-card:hover {
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.4), 0 0 50px rgba(236, 72, 153, 0.2);
+    border-color: #EC4899;
+    transition: all 0.5s ease;
+}
+
+.text-purple-neon {
+    color: #EC4899;
+    text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+.bg-purple-neon-dim {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+/* Green Glow for Project 3 */
+.green-glow-card:hover {
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4), 0 0 50px rgba(57, 255, 20, 0.2);
+    border-color: #39FF14;
+    transition: all 0.5s ease;
+}
+
+.text-green-neon {
+    color: #39FF14;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+.bg-green-neon-dim {
+    background: rgba(57, 255, 20, 0.1);
+    border: 1px solid rgba(57, 255, 20, 0.2);
+}
+
+/* Red/Orange Glow for Project 4 */
+.red-glow-card:hover {
+    box-shadow: 0 0 25px rgba(255, 49, 49, 0.4), 0 0 50px rgba(255, 49, 49, 0.2);
+    border-color: #FF3131;
+    transition: all 0.5s ease;
+}
+
+.text-red-neon {
+    color: #FF3131;
+    text-shadow: 0 0 10px rgba(255, 49, 49, 0.5);
+}
+
+.bg-red-neon-dim {
+    background: rgba(255, 49, 49, 0.1);
+    border: 1px solid rgba(255, 49, 49, 0.2);
+}
+
+/* Engineering Grid Background */
+.engineering-grid {
+    background-image: 
+        linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+/* Glitch Transition Effect (Subtle) */
+.glitch-hover:hover {
+    animation: glitch 0.2s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* Neon Glow Animations */
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.4); }
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+/* Scroll Animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Custom cursor or other small details can be added here */
+::selection {
+    background: var(--neon);
+    color: var(--lab);
+}
