@@ -55,71 +55,56 @@
 </head>
 <body class="bg-lab text-white font-mono antialiased overflow-x-hidden">
     <!-- Animated Robot -->
-    <div id="robot-mascot" class="fixed z-[95] pointer-events-none" style="width:45px;height:55px;perspective:200px;">
-        <div id="robot-inner" style="transform-style:preserve-3d;transition:transform 0.3s;">
-        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));">
+    <div id="robot-mascot" class="fixed z-[95] pointer-events-none" style="width:40px;height:50px;perspective:300px;">
+        <div id="robot-inner" style="transform-style:preserve-3d;">
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.6));">
             <!-- Antenna -->
             <line x1="50" y1="8" x2="50" y2="20" stroke="#4A90D9" stroke-width="2.5"/>
-            <circle cx="50" cy="6" r="3.5" fill="#4A90D9">
+            <circle cx="50" cy="6" r="3" fill="#4A90D9">
                 <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
             </circle>
-            <!-- Head shadow -->
-            <ellipse cx="52" cy="56" rx="26" ry="4" fill="rgba(0,0,0,0.15)"/>
             <!-- Head -->
             <rect x="25" y="20" width="50" height="35" rx="14" fill="#E8F0FE"/>
             <rect x="27" y="22" width="46" height="31" rx="12" fill="#F0F4FA"/>
             <!-- Face screen -->
             <rect x="30" y="24" width="40" height="26" rx="9" fill="#1A1A2E"/>
             <rect x="32" y="26" width="36" height="22" rx="7" fill="#0D1117"/>
-            <!-- Eyes with glow -->
-            <circle cx="42" cy="37" r="6" fill="#4A90D9">
-                <animate attributeName="r" values="6;5.5;6" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="58" cy="37" r="6" fill="#4A90D9">
-                <animate attributeName="r" values="6;5.5;6" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <!-- Eye shine -->
-            <circle cx="40" cy="35" r="2.5" fill="white" opacity="0.9"/>
-            <circle cx="56" cy="35" r="2.5" fill="white" opacity="0.9"/>
-            <circle cx="43" cy="38" r="1" fill="white" opacity="0.5"/>
-            <circle cx="59" cy="38" r="1" fill="white" opacity="0.5"/>
+            <!-- Eyes -->
+            <circle cx="42" cy="37" r="5.5" fill="#4A90D9"/>
+            <circle cx="58" cy="37" r="5.5" fill="#4A90D9"/>
+            <circle cx="40" cy="35" r="2.2" fill="white" opacity="0.9"/>
+            <circle cx="56" cy="35" r="2.2" fill="white" opacity="0.9"/>
+            <circle cx="43" cy="38" r="0.8" fill="white" opacity="0.5"/>
+            <circle cx="59" cy="38" r="0.8" fill="white" opacity="0.5"/>
             <!-- Mouth -->
-            <path d="M42 46 Q50 51 58 46" stroke="#4A90D9" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M43 46 Q50 50 57 46" stroke="#4A90D9" stroke-width="1.5" fill="none" stroke-linecap="round"/>
             <!-- Body -->
-            <ellipse cx="52" cy="90" rx="22" ry="4" fill="rgba(0,0,0,0.12)"/>
             <rect x="30" y="58" width="40" height="32" rx="12" fill="#E8F0FE"/>
             <rect x="32" y="60" width="36" height="28" rx="10" fill="#F0F4FA"/>
-            <!-- Chest panel -->
-            <rect x="38" y="63" width="24" height="10" rx="5" fill="#4A90D9" opacity="0.25"/>
+            <rect x="38" y="63" width="24" height="10" rx="5" fill="#4A90D9" opacity="0.2"/>
             <circle cx="50" cy="68" r="3" fill="#4A90D9" opacity="0.5">
                 <animate attributeName="opacity" values="0.5;0.2;0.5" dur="1.5s" repeatCount="indefinite"/>
             </circle>
-            <!-- Arms with 3D shading -->
-            <g id="robot-left-arm">
-                <rect x="16" y="60" width="14" height="9" rx="4.5" fill="#E0E8F5"/>
-                <ellipse cx="16" cy="64.5" rx="5.5" ry="5" fill="#E8F0FE"/>
-                <ellipse cx="16" cy="66" rx="4" ry="3" fill="#D0D8E8"/>
+            <!-- Left Arm -->
+            <g id="r-arm-l">
+                <rect x="14" y="60" width="16" height="8" rx="4" fill="#E0E8F5"/>
+                <ellipse cx="14" cy="64" rx="5" ry="4.5" fill="#E8F0FE"/>
             </g>
-            <g id="robot-right-arm">
-                <rect x="70" y="56" width="14" height="9" rx="4.5" fill="#E0E8F5"/>
-                <ellipse cx="84" cy="60.5" rx="5.5" ry="5" fill="#E8F0FE"/>
-                <ellipse cx="84" cy="62" rx="4" ry="3" fill="#D0D8E8"/>
-                <!-- Wave lines -->
-                <path d="M87 52 Q91 48 95 52" stroke="#4A90D9" stroke-width="1.2" fill="none" opacity="0.5"/>
-                <path d="M88 48 Q92 44 96 48" stroke="#4A90D9" stroke-width="1" fill="none" opacity="0.3"/>
+            <!-- Right Arm -->
+            <g id="r-arm-r">
+                <rect x="70" y="60" width="16" height="8" rx="4" fill="#E0E8F5"/>
+                <ellipse cx="86" cy="64" rx="5" ry="4.5" fill="#E8F0FE"/>
             </g>
-            <!-- Legs with shading -->
-            <rect x="36" y="88" width="11" height="18" rx="5" fill="#E0E8F5"/>
-            <rect x="53" y="88" width="11" height="18" rx="5" fill="#E0E8F5"/>
-            <rect x="37" y="89" width="9" height="16" rx="4" fill="#E8F0FE"/>
-            <rect x="54" y="89" width="9" height="16" rx="4" fill="#E8F0FE"/>
-            <!-- Feet -->
-            <ellipse cx="41" cy="106" rx="8" ry="4" fill="#4A90D9" opacity="0.4"/>
-            <ellipse cx="59" cy="106" rx="8" ry="4" fill="#4A90D9" opacity="0.4"/>
-            <rect x="33" y="102" width="16" height="7" rx="3.5" fill="#D0D8E8"/>
-            <rect x="51" y="102" width="16" height="7" rx="3.5" fill="#D0D8E8"/>
-            <rect x="34" y="103" width="14" height="5" rx="2.5" fill="#E0E8F5"/>
-            <rect x="52" y="103" width="14" height="5" rx="2.5" fill="#E0E8F5"/>
+            <!-- Left Leg -->
+            <g id="r-leg-l">
+                <rect x="36" y="88" width="10" height="18" rx="5" fill="#E0E8F5"/>
+                <rect x="34" y="104" width="14" height="6" rx="3" fill="#D0D8E8"/>
+            </g>
+            <!-- Right Leg -->
+            <g id="r-leg-r">
+                <rect x="54" y="88" width="10" height="18" rx="5" fill="#E0E8F5"/>
+                <rect x="52" y="104" width="14" height="6" rx="3" fill="#D0D8E8"/>
+            </g>
         </svg>
         </div>
     </div>
@@ -1045,56 +1030,62 @@
         const robotInner = document.getElementById('robot-inner');
         if (!robot) return;
 
+        const armL = document.getElementById('r-arm-l');
+        const armR = document.getElementById('r-arm-r');
+        const legL = document.getElementById('r-leg-l');
+        const legR = document.getElementById('r-leg-r');
+
         let rx = 80;
-        let ry = 10;
-        let targetX = 80;
-        let targetY = 10;
+        let targetX = 200;
         let walkPhase = 0;
         let facingRight = true;
-        let walkSpeed = 0.4;
-        let dirChangeTimer = 0;
+        let isWalking = false;
 
-        function getLogoBounds() {
+        function getLogoCenter() {
             const logo = document.querySelector('nav a');
-            if (!logo) return { left: 50, right: 200, top: 0, bottom: 40 };
+            if (!logo) return { cx: 120, cy: 28, left: 50, right: 220 };
             const rect = logo.getBoundingClientRect();
             return {
-                left: rect.left - 10,
-                right: rect.right + 10,
-                top: rect.top,
-                bottom: rect.bottom
+                cx: rect.left + rect.width / 2,
+                cy: rect.top + rect.height / 2,
+                left: rect.left - 15,
+                right: rect.right + 15
             };
         }
 
         function animateRobot() {
-            const logo = getLogoBounds();
-
-            dirChangeTimer++;
-            if (dirChangeTimer > 120) {
-                dirChangeTimer = 0;
-                if (Math.random() < 0.5) {
-                    targetX = logo.left + Math.random() * (logo.right - logo.left);
-                } else {
-                    targetX = Math.random() < 0.5 ? logo.left - 5 : logo.right + 5;
-                }
-            }
+            const logo = getLogoCenter();
 
             const dx = targetX - rx;
-            if (Math.abs(dx) > 1) {
-                rx += Math.sign(dx) * Math.min(Math.abs(dx) * 0.03, walkSpeed);
+            isWalking = Math.abs(dx) > 2;
+
+            if (isWalking) {
+                const speed = 0.6;
+                rx += Math.sign(dx) * Math.min(Math.abs(dx) * 0.04, speed);
                 facingRight = dx > 0;
-                walkPhase += 0.15;
-            } else {
-                walkPhase += 0.03;
+                walkPhase += 0.18;
             }
 
-            const bob = Math.abs(dx) > 1 ? Math.sin(walkPhase * 2) * 1.5 : 0;
+            if (Math.abs(targetX - rx) < 3) {
+                targetX = facingRight ? logo.left : logo.right;
+            }
 
-            robot.style.left = (rx - 22) + 'px';
-            robot.style.top = (logo.top + (logo.bottom - logo.top) / 2 - 27 + bob) + 'px';
+            const bob = isWalking ? Math.abs(Math.sin(walkPhase * 2)) * 2 : 0;
+            const bodyTilt = isWalking ? Math.sin(walkPhase * 2) * 4 : 0;
 
-            const tiltZ = Math.sin(walkPhase * 2) * (Math.abs(dx) > 1 ? 5 : 0);
-            robotInner.style.transform = `rotateZ(${tiltZ}deg) scaleX(${facingRight ? 1 : -1})`;
+            robot.style.left = (rx - 20) + 'px';
+            robot.style.top = (logo.cy - 25 + bob) + 'px';
+
+            const scaleX = facingRight ? 1 : -1;
+            robotInner.style.transform = `rotateZ(${bodyTilt}deg) scaleX(${scaleX}) rotateY(${isWalking ? 8 : 0}deg)`;
+
+            if (armL && armR && legL && legR) {
+                const swing = isWalking ? Math.sin(walkPhase) * 12 : 0;
+                armL.setAttribute('transform', `rotate(${-swing}, 22, 60)`);
+                armR.setAttribute('transform', `rotate(${swing}, 78, 60)`);
+                legL.setAttribute('transform', `rotate(${swing * 0.7}, 41, 88)`);
+                legR.setAttribute('transform', `rotate(${-swing * 0.7}, 59, 88)`);
+            }
 
             requestAnimationFrame(animateRobot);
         }
