@@ -54,6 +54,47 @@
     </style>
 </head>
 <body class="bg-lab text-white font-mono antialiased overflow-x-hidden">
+    <!-- Animated Robot -->
+    <div id="robot-mascot" class="fixed z-[95] pointer-events-none transition-none" style="width:50px;height:60px;">
+        <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Antenna -->
+            <line x1="50" y1="8" x2="50" y2="20" stroke="#4A90D9" stroke-width="2"/>
+            <circle cx="50" cy="6" r="3" fill="#4A90D9"/>
+            <!-- Head -->
+            <rect x="25" y="20" width="50" height="35" rx="12" fill="#E8F0FE"/>
+            <rect x="30" y="24" width="40" height="26" rx="8" fill="#1A1A2E"/>
+            <!-- Eyes -->
+            <circle cx="40" cy="37" r="6" fill="#4A90D9"/>
+            <circle cx="60" cy="37" r="6" fill="#4A90D9"/>
+            <circle cx="41" cy="35" r="2" fill="white"/>
+            <circle cx="61" cy="35" r="2" fill="white"/>
+            <!-- Mouth -->
+            <path d="M42 46 Q50 52 58 46" stroke="#4A90D9" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- Body -->
+            <rect x="30" y="58" width="40" height="30" rx="10" fill="#E8F0FE"/>
+            <rect x="38" y="62" width="24" height="10" rx="4" fill="#4A90D9" opacity="0.3"/>
+            <!-- Arms -->
+            <g id="robot-left-arm">
+                <rect x="14" y="60" width="14" height="8" rx="4" fill="#E8F0FE"/>
+                <circle cx="14" cy="64" r="5" fill="#E8F0FE"/>
+            </g>
+            <g id="robot-right-arm">
+                <rect x="72" y="55" width="14" height="8" rx="4" fill="#E8F0FE"/>
+                <circle cx="86" cy="59" r="5" fill="#E8F0FE"/>
+                <!-- Wave lines -->
+                <path d="M88 50 Q92 46 96 50" stroke="#4A90D9" stroke-width="1" fill="none" opacity="0.6"/>
+                <path d="M89 46 Q93 42 97 46" stroke="#4A90D9" stroke-width="1" fill="none" opacity="0.4"/>
+                <path d="M90 42 Q94 38 98 42" stroke="#4A90D9" stroke-width="1" fill="none" opacity="0.2"/>
+            </g>
+            <!-- Legs -->
+            <rect x="35" y="88" width="10" height="16" rx="4" fill="#E8F0FE"/>
+            <rect x="55" y="88" width="10" height="16" rx="4" fill="#E8F0FE"/>
+            <!-- Feet -->
+            <rect x="32" y="102" width="16" height="6" rx="3" fill="#4A90D9" opacity="0.5"/>
+            <rect x="52" y="102" width="16" height="6" rx="3" fill="#4A90D9" opacity="0.5"/>
+        </svg>
+    </div>
+    
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-[90] border-b border-neon/10 bg-lab/80 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -965,6 +1006,135 @@
             requestAnimationFrame(animate);
         }
         animate();
+    })();
+    </script>
+
+    <!-- Robot Mascot Animation -->
+    <script>
+    (function() {
+        const robot = document.getElementById('robot-mascot');
+        if (!robot) return;
+
+        let rx = window.innerWidth / 2;
+        let ry = 200;
+        let targetX = rx;
+        let targetY = ry;
+        let velocityX = 0;
+        let velocityY = 0;
+        let jumpPhase = 0;
+        let jumpHeight = 0;
+        let isJumping = false;
+        let jumpProgress = 0;
+        let startX, startY;
+        let mouseX = window.innerWidth / 2;
+        let mouseY = 300;
+        let headings = [];
+        let currentHeadingIndex = 0;
+        let idleTimer = 0;
+        let facingRight = true;
+        let bobPhase = 0;
+
+        function collectHeadings() {
+            headings = [];
+            document.querySelectorAll('h1, h2, h3, h4, [class*="text-2xl"], [class*="text-4xl"], [class*="font-black"]').forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.height > 0 && rect.width > 0) {
+                    headings.push({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + window.scrollY - 30,
+                        el: el
+                    });
+                }
+            });
+        }
+        collectHeadings();
+        window.addEventListener('resize', collectHeadings);
+
+        document.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY + window.scrollY;
+        });
+
+        setInterval(() => {
+            collectHeadings();
+            if (headings.length === 0) return;
+
+            idleTimer++;
+            if (idleTimer > 80 || Math.random() < 0.15) {
+                idleTimer = 0;
+                const rand = Math.random();
+                if (rand < 0.4) {
+                    const nearest = headings.reduce((best, h) => {
+                        const d = Math.hypot(h.x - rx, h.y - (ry + window.scrollY));
+                        return d < best.d ? { h, d } : best;
+                    }, { h: headings[0], d: Infinity }).h;
+                    targetX = nearest.x + (Math.random() - 0.5) * 60;
+                    targetY = nearest.y + (Math.random() - 0.5) * 20;
+                } else if (rand < 0.7) {
+                    const randomHeading = headings[Math.floor(Math.random() * headings.length)];
+                    targetX = randomHeading.x + (Math.random() - 0.5) * 80;
+                    targetY = randomHeading.y + (Math.random() - 0.5) * 30;
+                } else {
+                    targetX = mouseX + (Math.random() - 0.5) * 100;
+                    targetY = mouseY - 60 + (Math.random() - 0.5) * 40;
+                }
+                startJump();
+            }
+        }, 500);
+
+        function startJump() {
+            if (isJumping) return;
+            isJumping = true;
+            jumpProgress = 0;
+            startX = rx;
+            startY = ry;
+        }
+
+        function animateRobot() {
+            const scrollY = window.scrollY;
+            const viewY = ry - scrollY;
+
+            if (isJumping) {
+                jumpProgress += 0.04;
+                if (jumpProgress >= 1) {
+                    jumpProgress = 1;
+                    isJumping = false;
+                }
+                const ease = jumpProgress < 0.5
+                    ? 4 * jumpProgress * jumpProgress * jumpProgress
+                    : 1 - Math.pow(-2 * jumpProgress + 2, 3) / 2;
+
+                rx = startX + (targetX - startX) * ease;
+                ry = startY + (targetY - startY) * ease;
+                jumpHeight = Math.sin(jumpProgress * Math.PI) * 50;
+            } else {
+                const dx = targetX - rx;
+                const dy = targetY - ry;
+                rx += dx * 0.03;
+                ry += dy * 0.03;
+                jumpHeight *= 0.9;
+            }
+
+            if (targetX > rx + 5) facingRight = true;
+            else if (targetX < rx - 5) facingRight = false;
+
+            bobPhase += 0.06;
+            const bob = Math.sin(bobPhase) * 3;
+
+            const displayY = ry - jumpHeight + bob - scrollY;
+
+            robot.style.left = (rx - 25) + 'px';
+            robot.style.top = displayY + 'px';
+            robot.style.transform = `scaleX(${facingRight ? 1 : -1})`;
+
+            if (isJumping) {
+                const squash = 1 + Math.sin(jumpProgress * Math.PI) * 0.15;
+                robot.style.transform += ` scaleY(${1 + (1 - squash) * 0.3}) scaleX(${facingRight ? squash : -squash})`;
+            }
+
+            requestAnimationFrame(animateRobot);
+        }
+        animateRobot();
     })();
     </script>
 </body>
