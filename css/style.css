@@ -6,7 +6,7 @@
 }
 
 body {
-    background: url('../assets/images/rb20-exploded.jpg') center center / cover no-repeat fixed;
+    background: url('../assets/images/rb20-exploded.png') center center / cover no-repeat fixed;
     background-color: #0a0a0a;
     color: white;
     min-height: 100vh;
