@@ -38,6 +38,15 @@ section::before {
     border-radius: 4px;
 }
 
+/* Hero section - no dark overlay */
+#hero::before {
+    background: transparent !important;
+}
+
+#hero {
+    background: transparent;
+}
+
 /* Card/tile backgrounds */
 .group, .border {
     background: rgba(0, 0, 0, 0.7) !important;
