@@ -175,8 +175,8 @@ window.addEventListener('load', () => {
     // Initialize Draggable UI
     initDraggableUI();
     
-    // Add reveal class to sections
-    document.querySelectorAll('section, .group, .border').forEach(el => {
+    // Add reveal class to sections only (not all .group/.border elements)
+    document.querySelectorAll('section').forEach(el => {
         el.classList.add('reveal');
     });
     
