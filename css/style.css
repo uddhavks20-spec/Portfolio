@@ -8,8 +8,46 @@
 body {
     background: url('../assets/images/rb20-exploded.png') center center / cover no-repeat fixed;
     background-color: #0a0a0a;
-    color: white;
+    color: #ffffff;
     min-height: 100vh;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Dark overlay for readability */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Section backgrounds */
+section {
+    position: relative;
+}
+
+section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+/* Card/tile backgrounds */
+.group, .border {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(4px);
+}
+
+/* Nav background */
+nav {
+    background: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(12px);
 }
 
 /* Custom Scrollbar */
@@ -18,74 +56,74 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--lab);
+    background: rgba(0, 0, 0, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 255, 255, 0.1);
+    background: rgba(34, 211, 238, 0.3);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 255, 255, 0.3);
+    background: rgba(34, 211, 238, 0.5);
 }
 
 /* Purple Glow for Project 2 */
 .purple-glow-card:hover {
-    box-shadow: 0 0 25px rgba(124, 58, 237, 0.4), 0 0 50px rgba(236, 72, 153, 0.2);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.5), 0 0 50px rgba(236, 72, 153, 0.3);
     border-color: #EC4899;
     transition: all 0.5s ease;
 }
 
 .text-purple-neon {
-    color: #EC4899;
-    text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+    color: #F472B6;
+    text-shadow: 0 0 12px rgba(236, 72, 153, 0.7);
 }
 
 .bg-purple-neon-dim {
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(236, 72, 153, 0.2);
+    background: rgba(124, 58, 237, 0.2) !important;
+    border: 1px solid rgba(236, 72, 153, 0.35);
 }
 
 /* Green Glow for Project 3 */
 .green-glow-card:hover {
-    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4), 0 0 50px rgba(57, 255, 20, 0.2);
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.5), 0 0 50px rgba(57, 255, 20, 0.3);
     border-color: #39FF14;
     transition: all 0.5s ease;
 }
 
 .text-green-neon {
-    color: #39FF14;
-    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+    color: #4ADE80;
+    text-shadow: 0 0 12px rgba(57, 255, 20, 0.7);
 }
 
 .bg-green-neon-dim {
-    background: rgba(57, 255, 20, 0.1);
-    border: 1px solid rgba(57, 255, 20, 0.2);
+    background: rgba(57, 255, 20, 0.2) !important;
+    border: 1px solid rgba(57, 255, 20, 0.35);
 }
 
 /* Red/Orange Glow for Project 4 */
 .red-glow-card:hover {
-    box-shadow: 0 0 25px rgba(255, 49, 49, 0.4), 0 0 50px rgba(255, 49, 49, 0.2);
+    box-shadow: 0 0 25px rgba(255, 49, 49, 0.5), 0 0 50px rgba(255, 49, 49, 0.3);
     border-color: #FF3131;
     transition: all 0.5s ease;
 }
 
 .text-red-neon {
-    color: #FF3131;
-    text-shadow: 0 0 10px rgba(255, 49, 49, 0.5);
+    color: #F87171;
+    text-shadow: 0 0 12px rgba(255, 49, 49, 0.7);
 }
 
 .bg-red-neon-dim {
-    background: rgba(255, 49, 49, 0.1);
-    border: 1px solid rgba(255, 49, 49, 0.2);
+    background: rgba(255, 49, 49, 0.2) !important;
+    border: 1px solid rgba(255, 49, 49, 0.35);
 }
 
 /* Engineering Grid Background */
 .engineering-grid {
     background-image: 
-        linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+        linear-gradient(to right, rgba(34, 211, 238, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(34, 211, 238, 0.1) 1px, transparent 1px);
     background-size: 30px 30px;
 }
 
@@ -105,8 +143,8 @@ body {
 
 /* Neon Glow Animations */
 @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.2); }
-    50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.4); }
+    0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+    50% { box-shadow: 0 0 40px rgba(34, 211, 238, 0.7); }
 }
 
 .animate-pulse-glow {
