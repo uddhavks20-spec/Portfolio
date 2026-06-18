@@ -1045,114 +1045,56 @@
         const robotInner = document.getElementById('robot-inner');
         if (!robot) return;
 
-        let rx = window.innerWidth / 2;
-        let ry = 200;
-        let targetX = rx;
-        let targetY = ry;
-        let startX, startY;
-        let mouseX = window.innerWidth / 2;
-        let mouseY = 300;
-        let headings = [];
-        let idleTimer = 0;
+        let rx = 80;
+        let ry = 10;
+        let targetX = 80;
+        let targetY = 10;
+        let walkPhase = 0;
         let facingRight = true;
-        let bobPhase = 0;
-        let isJumping = false;
-        let jumpProgress = 0;
-        let jumpHeight = 0;
-        let tiltX = 0;
-        let tiltZ = 0;
+        let walkSpeed = 0.4;
+        let dirChangeTimer = 0;
 
-        function collectHeadings() {
-            headings = [];
-            document.querySelectorAll('h1, h2, h3, h4, span[class*="font-bold"]').forEach(el => {
-                const rect = el.getBoundingClientRect();
-                if (rect.height > 0 && rect.width > 10) {
-                    headings.push({
-                        x: rect.left + rect.width / 2,
-                        y: rect.top + window.scrollY - 20,
-                        el: el
-                    });
-                }
-            });
-        }
-        collectHeadings();
-        window.addEventListener('resize', collectHeadings);
-
-        document.addEventListener('mousemove', e => {
-            mouseX = e.clientX;
-            mouseY = e.clientY + window.scrollY;
-        });
-
-        setInterval(() => {
-            collectHeadings();
-            if (headings.length === 0) return;
-
-            idleTimer++;
-            if (idleTimer > 40) {
-                idleTimer = 0;
-                const rand = Math.random();
-                if (rand < 0.5) {
-                    const randomHeading = headings[Math.floor(Math.random() * headings.length)];
-                    targetX = randomHeading.x + (Math.random() - 0.5) * 30;
-                    targetY = randomHeading.y + (Math.random() - 0.5) * 10;
-                } else {
-                    targetX = mouseX + (Math.random() - 0.5) * 40;
-                    targetY = mouseY - 50 + (Math.random() - 0.5) * 20;
-                }
-                startJump();
-            }
-        }, 800);
-
-        function startJump() {
-            if (isJumping) return;
-            isJumping = true;
-            jumpProgress = 0;
-            startX = rx;
-            startY = ry;
+        function getLogoBounds() {
+            const logo = document.querySelector('nav a');
+            if (!logo) return { left: 50, right: 200, top: 0, bottom: 40 };
+            const rect = logo.getBoundingClientRect();
+            return {
+                left: rect.left - 10,
+                right: rect.right + 10,
+                top: rect.top,
+                bottom: rect.bottom
+            };
         }
 
         function animateRobot() {
-            const scrollY = window.scrollY;
-            const viewY = ry - scrollY;
+            const logo = getLogoBounds();
 
-            if (isJumping) {
-                jumpProgress += 0.025;
-                if (jumpProgress >= 1) {
-                    jumpProgress = 1;
-                    isJumping = false;
+            dirChangeTimer++;
+            if (dirChangeTimer > 120) {
+                dirChangeTimer = 0;
+                if (Math.random() < 0.5) {
+                    targetX = logo.left + Math.random() * (logo.right - logo.left);
+                } else {
+                    targetX = Math.random() < 0.5 ? logo.left - 5 : logo.right + 5;
                 }
-                const ease = jumpProgress < 0.5
-                    ? 4 * jumpProgress * jumpProgress * jumpProgress
-                    : 1 - Math.pow(-2 * jumpProgress + 2, 3) / 2;
-
-                rx = startX + (targetX - startX) * ease;
-                ry = startY + (targetY - startY) * ease;
-                jumpHeight = Math.sin(jumpProgress * Math.PI) * 25;
-            } else {
-                const dx = targetX - rx;
-                const dy = targetY - ry;
-                rx += dx * 0.015;
-                ry += dy * 0.015;
-                jumpHeight *= 0.92;
             }
 
-            if (targetX > rx + 3) facingRight = true;
-            else if (targetX < rx - 3) facingRight = false;
+            const dx = targetX - rx;
+            if (Math.abs(dx) > 1) {
+                rx += Math.sign(dx) * Math.min(Math.abs(dx) * 0.03, walkSpeed);
+                facingRight = dx > 0;
+                walkPhase += 0.15;
+            } else {
+                walkPhase += 0.03;
+            }
 
-            bobPhase += 0.04;
-            const bob = Math.sin(bobPhase) * 2;
-
-            const displayY = ry - jumpHeight + bob - scrollY;
+            const bob = Math.abs(dx) > 1 ? Math.sin(walkPhase * 2) * 1.5 : 0;
 
             robot.style.left = (rx - 22) + 'px';
-            robot.style.top = displayY + 'px';
+            robot.style.top = (logo.top + (logo.bottom - logo.top) / 2 - 27 + bob) + 'px';
 
-            const speedX = (targetX - rx) * 0.02;
-            tiltZ = Math.max(-15, Math.min(15, speedX * 2));
-            tiltX = isJumping ? Math.sin(jumpProgress * Math.PI) * 8 : 0;
-
-            const scaleX = facingRight ? 1 : -1;
-            robotInner.style.transform = `rotateY(${tiltZ}deg) rotateX(${tiltX}deg) scaleX(${scaleX})`;
+            const tiltZ = Math.sin(walkPhase * 2) * (Math.abs(dx) > 1 ? 5 : 0);
+            robotInner.style.transform = `rotateZ(${tiltZ}deg) scaleX(${facingRight ? 1 : -1})`;
 
             requestAnimationFrame(animateRobot);
         }
